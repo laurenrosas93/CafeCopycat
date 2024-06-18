@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ details['strDrink'] }}</title>
+</head>
+<body>
+    <h1>{{ details['strDrink'] }}</h1>
+    <img src="{{ details['strDrinkThumb'] }}" alt="{{ details['strDrink'] }}">
+    <h2>Category: {{ details['strCategory'] }}</h2>
+    
+    <h3>Ingredients:</h3>
+    <ul>
+        {% for i in range(1, 16) %}
+            {% if details['strIngredient' ~ i] %}
+                <li>{{ details['strIngredient' ~ i] }}: {{ details['strMeasure' ~ i] }}</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+    
+    <h3>Instructions:</h3>
+    <p>{{ details['strInstructions'] }}</p>
+
+    <form method="post">
+        <label for="unit">Choose unit system:</label>
+        <select name="unit" id="unit">
+            <option value="imperial">Imperial (oz)</option>
+            <option value="metric">Metric (ml)</option>
+        </select>
+        <button type="submit">Convert</button>
+    </form>
+
+    <form method="post">
+        <button type="submit" name="save">Save Recipe</button>
+    </form>
+    
+    <a href="{{ url_for('home') }}">Back to Home</a>
+</body>
+</html>
