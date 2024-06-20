@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cafe Copycat</title>
+</head>
+<body>
+    <h1>Drink Categories</h1>
+    <ul>
+        {% for category in categories %}
+            <li>{{ category }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Search for Drinks</h2>
+    <form action="{{ url_for('search') }}" method="get">
+        <input type="text" name="query" placeholder="Search by name">
+        <button type="submit">Search</button>
+    </form>
+
+    <h2>Search by Letter</h2>
+    <form action="{{ url_for('search_by_letter') }}" method="get">
+        <input type="text" name="letter" maxlength="1" placeholder="Enter a letter">
+        <button type="submit">Search</button>
+    </form>
+
+    <h2>Drinks</h2>
+    <ul>
+        {% for drink in drinks %}
+            <li><a href="{{ url_for('recipe', drink_id=drink['idDrink']) }}">{{ drink['strDrink'] }}</a> ({{ drink['strCategory'] }})</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
