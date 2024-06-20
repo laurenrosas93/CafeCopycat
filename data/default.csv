@@ -1,6 +1,6 @@
-idDrink	strDrink	strCategory	strDrinkThumb
-11007	Margarita	Ordinary Drink	https://www.thecocktaildb.com/images/media/drink/5noda61589575158.jpg
-11008	Manhattan	Cocktail	https://www.thecocktaildb.com/images/media/drink/yk70e31606771240.jpg
-11009	Mojito	Cocktail	https://www.thecocktaildb.com/images/media/drink/3z6xdi1589574603.jpg
-11010	Whiskey Sour	Ordinary Drink	https://www.thecocktaildb.com/images/media/drink/hbkfsh1589574990.jpg
-11011	Martini	Cocktail	https://www.thecocktaildb.com/images/media/drink/71t8581504353095.jpg
+idDrink,strDrink,strCategory,strDrinkThumb
+11007,Margarita,Ordinary Drink,https://www.thecocktaildb.com/images/media/drink/5noda61589575158.jpg
+11008,Manhattan,Cocktail,https://www.thecocktaildb.com/images/media/drink/yk70e31606771240.jpg
+11009,Mojito,Cocktail,https://www.thecocktaildb.com/images/media/drink/3z6xdi1589574603.jpg
+11010,Whiskey Sour,Ordinary Drink,https://www.thecocktaildb.com/images/media/drink/hbkfsh1589574990.jpg
+11011,Martini,Cocktail,https://www.thecocktaildb.com/images/media/drink/71t8581504353095.jpg
