@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ category }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Drinks in Category: {{ category }}</h1>
+    <ul>
+        {% for drink in drinks %}
+            <li>
+                <a href="{{ url_for('recipe', drink_id=drink['idDrink']) }}">
+                    <img src="{{ drink['strDrinkThumb'] }}" alt="{{ drink['strDrink'] }}" class="thumbnail">
+                    {{ drink['strDrink'] }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('home') }}">Back to Home</a>
+</body>
+</html>
