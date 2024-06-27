@@ -29,3 +29,16 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+.thumbnail {
+    width: 150px;  
+    height: 150px; 
+    object-fit: cover; 
+    display: block; 
+    margin: auto; 
+}
+
+.recipe-thumbnail {
+    width: 150px;
+    height: 150px;
+}

@@ -2,33 +2,136 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Cafe Copycat</title>
+    <title>Welcome to CafeCopyCat!</title>
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='images/background.jpg') }}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            text-align: center;
+        }
+
+        .collapsible {
+            background-color: #777;
+            color: white;
+            cursor: cursor;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .active, .collapsible:hover {
+            background-color: #555;
+        }
+
+        .content {
+            padding: 0 18px;
+            display: none;
+            overflow: hidden;
+            background-color: #f9f9f9;
+        }
+
+        .button {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .drink-thumbnail {
+            width: 150px;
+            height: 150px;
+        }
+
+        .category-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .container {
+            text-align: center;
+            margin: auto;
+            padding: 20px;
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Drink Categories</h1>
-    <ul>
-        {% for category in categories %}
-            <li>{{ category }}</li>
-        {% endfor %}
-    </ul>
+    <div class="container">
+        <h1>Welcome to CafeCopyCat!</h1>
+        <p>Search a drink name or select a category from the advanced search.</p>
 
-    <h2>Search for Drinks</h2>
-    <form action="{{ url_for('search') }}" method="get">
-        <input type="text" name="query" placeholder="Search by name">
-        <button type="submit">Search</button>
-    </form>
+        <h2>Search for Drinks</h2>
+        <form action="{{ url_for('search') }}" method="get">
+            <input type="text" name="query" placeholder="Search by name">
+            <br>
+            <button type="button" class="collapsible">Advanced Search</button>
+            <div class="content">
+                <h4>Categories:</h4>
+                {% for category in categories %}
+                    <label><input type="checkbox" name="categories" value="{{ category }}"> {{ category }}</label>
+                {% endfor %}
+            </div>
+            <br>
+            <button type="submit" class="button">Search</button>
+        </form>
 
-    <h2>Search by Letter</h2>
-    <form action="{{ url_for('search_by_letter') }}" method="get">
-        <input type="text" name="letter" maxlength="1" placeholder="Enter a letter">
-        <button type="submit">Search</button>
-    </form>
+        <h1>Today's Featured Drink! </h1>
+        <div>
+            <a href="{{ url_for('recipe', drink_id=drink_of_the_day['idDrink']) }}">
+                <img src="{{ drink_of_the_day['strDrinkThumb'] }}" alt="{{ drink_of_the_day['strDrink'] }}" class="large-thumbnail">
+                <p>{{ drink_of_the_day['strDrink'] }}</p>
+            </a>
+        </div>
 
-    <h2>Drinks</h2>
-    <ul>
-        {% for drink in drinks %}
-            <li><a href="{{ url_for('recipe', drink_id=drink['idDrink']) }}">{{ drink['strDrink'] }}</a> ({{ drink['strCategory'] }})</li>
-        {% endfor %}
-    </ul>
+        <h1>Go to Saved Recipes</h1>
+        <div>
+            <a href="{{ url_for('saved_recipes') }}">
+                <img src="{{ url_for('static', filename='images/cocktail_glass.png') }}" alt="Saved Recipes" class="drink-thumbnail">
+            </a>
+        </div>
+
+        <h1>Drink Categories</h1>
+        <div class="category-buttons">
+            {% for category in categories %}
+                <a href="{{ url_for('category', category_name=category) }}" class="button">{{ category }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        var coll = document.getElementsByClassName("collapsible");
+        for (var i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
+        }
+    </script>
 </body>
 </html>

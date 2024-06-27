@@ -3,6 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ details['strDrink'] }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .recipe-thumbnail {
+            width: auto;
+            height: auto;
+        }
+        .star-rating {
+            direction: rtl;
+            display: inline-block;
+            padding: 20px;
+        }
+        .star-rating input {
+            display: none;
+        }
+        .star-rating label {
+            color: #ccc;
+            font-size: 20px;
+            padding: 0;
+            cursor: pointer;
+            -webkit-transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
+        }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #f2b600;
+        }
+    
+    </style>
 </head>
 <body>
     <h1>{{ details['strDrink'] }}</h1>
@@ -30,10 +60,28 @@
         <button type="submit">Convert</button>
     </form>
 
+    <h3>Rate This Recipe:</h3>
     <form method="post">
-        <button type="submit" name="save">Save Recipe</button>
+        <div class="star-rating">
+            {% for i in range(5, 0, -1) %}
+                <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" {% if user_rating == i %}checked{% endif %}>
+                <label for="star{{ i }}" class="fas fa-star"></label>
+            {% endfor %}
+        </div>
+        <button type="submit" name="rate">Submit Rating</button>
+    </form>
+
+    <form method="post">
+        {% if is_saved %}
+            <p>Recipe already saved</p>
+        {% else %}
+            <button type="submit" name="save">Save Recipe</button>
+        {% endif %}
     </form>
     
+    
+    <a href="{{ url_for('saved_recipes') }}">Go to Saved Recipes</a>
+    <br>
     <a href="{{ url_for('home') }}">Back to Home</a>
 </body>
 </html>
