@@ -4,82 +4,70 @@
     <meta charset="UTF-8">
     <title>{{ details['strDrink'] }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        .recipe-thumbnail {
-            width: auto;
-            height: auto;
-        }
-        .star-rating {
-            direction: rtl;
-            display: inline-block;
-            padding: 20px;
-        }
-        .star-rating input {
-            display: none;
-        }
-        .star-rating label {
-            color: #ccc;
-            font-size: 20px;
-            padding: 0;
-            cursor: pointer;
-            -webkit-transition: all 0.3s ease-in-out;
-            transition: all 0.3s ease-in-out;
-        }
-        .star-rating input:checked ~ label,
-        .star-rating label:hover,
-        .star-rating label:hover ~ label {
-            color: #f2b600;
+        .drink-thumbnail {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
         }
     
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .recipe-details {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .recipe-details img {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        .unit-dropdown {
+            margin-bottom: 10px;
+        }
+        .saved-message {
+            color: green;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <h1>{{ details['strDrink'] }}</h1>
-    <img src="{{ details['strDrinkThumb'] }}" alt="{{ details['strDrink'] }}">
-    <h2>Category: {{ details['strCategory'] }}</h2>
-    
-    <h3>Ingredients:</h3>
-    <ul>
-        {% for i in range(1, 16) %}
-            {% if details['strIngredient' ~ i] %}
-                <li>{{ details['strIngredient' ~ i] }}: {{ details['strMeasure' ~ i] }}</li>
-            {% endif %}
-        {% endfor %}
-    </ul>
-    
-    <h3>Instructions:</h3>
-    <p>{{ details['strInstructions'] }}</p>
-
-    <form method="post">
-        <label for="unit">Choose unit system:</label>
-        <select name="unit" id="unit">
-            <option value="imperial">Imperial (oz)</option>
-            <option value="metric">Metric (ml)</option>
-        </select>
-        <button type="submit">Convert</button>
-    </form>
-
-    <h3>Rate This Recipe:</h3>
-    <form method="post">
-        <div class="star-rating">
-            {% for i in range(5, 0, -1) %}
-                <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" {% if user_rating == i %}checked{% endif %}>
-                <label for="star{{ i }}" class="fas fa-star"></label>
+    <div class="container mt-4">
+        <h1>{{ details['strDrink'] }}</h1>
+        <img src="{{ details['strDrinkThumb'] }}" alt="{{ details['strDrink'] }}" class="drink-thumbnail mb-4">
+        
+        <h3>Ingredients</h3>
+        <ul>
+            {% for i in range(1, 16) %}
+                {% if details['strIngredient' + i|string] %}
+                    <li>{{ details['strIngredient' + i|string] }}: {{ details['strMeasure' + i|string] }}</li>
+                {% endif %}
             {% endfor %}
-        </div>
-        <button type="submit" name="rate">Submit Rating</button>
-    </form>
+        </ul>
 
-    <form method="post">
-        {% if is_saved %}
-            <p>Recipe already saved</p>
-        {% else %}
-            <button type="submit" name="save">Save Recipe</button>
-        {% endif %}
-    </form>
-    
-    
+        <h2>Instructions</h2>
+        <p>{{ details['strInstructions'] }}</p>
+
+        <form method="post">
+            <div class="unit-dropdown">
+                <label for="unit">Select unit:</label>
+                <select name="unit" id="unit" onchange="this.form.submit()">
+                    <option value="imperial">Imperial</option>
+                    <option value="metric" {% if request.form.get('unit') == 'metric' %}selected{% endif %}>Metric</option>
+                </select>
+            </div>
+            {% if recipe_saved %}
+                <p class="saved-message">Yay! This recipe was saved to your Saved Recipes!</p>
+            {% else %}
+                <button type="submit" name="save">Save Recipe</button>
+            {% endif %}
+        </form>
+    </div>
     <a href="{{ url_for('saved_recipes') }}">Go to Saved Recipes</a>
     <br>
     <a href="{{ url_for('home') }}">Back to Home</a>
