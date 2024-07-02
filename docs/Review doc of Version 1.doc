@@ -1,0 +1,56 @@
+CafeCopyCat
+Lauren Rosas
+7/1/24
+Review doc
+
+NOTE: I uploaded a 10 minute screen recording of my project and the progress so far. But below is my overall review.
+
+Current Progress
+I think my project is in a good space and practically workable, however, I did run into a few snags with 
+•	metric conversion due to non traditional measurements listed in the API drink instructions such as “ a dash of salt” or a “lemon peel”.
+•	Thumbnail image sizes (all resolved)
+
+Some issues that I am still running into:
+•	Empty drink category pages such as “Other Unknown” and “Coffee/Tea”. 
+•	When I search coffee or tea, I get results, however, I don’t get results when I select the category button. I am trying to figure out why it is not pulling for that category.
+•	How many features are too many features? 
+
+Ideas for next steps and new features:
+•	For any empty pages, the user will have the option to create a recipe. 
+•	Maybe create a feature to find the nearest liquor store with the ingredients needed
+ 
+Questions:
+1.	What are you expecting for the final version?
+2.	How many more features should I add?
+3.	Are my milestones going too far?
+
+Milestones
+  
+Milestone 1: Implement a "Create Your Own Recipe" Option for Empty Pages
+•	Purpose: Add functionality that allows users to create their own recipes on any empty pages where no recipes are found.
+•	Tasks:
+o	Design a form for users to input recipe details such as name, ingredients, measurements, instructions, and an image.
+o	Add a "Create Recipe" button on empty pages.
+o	Store the user-created recipes in the database and display them on the "Saved Recipes" page.
+
+  Milestone 2: Integrate a Map API to Find Nearest Liquor Stores
+•	Purpose: Provide users with a feature to find the nearest liquor store that stocks the ingredients needed for a selected recipe.
+•	Tasks:
+o	Research and choose a suitable map API (e.g., Google Maps, MapQuest).
+o	Create a feature that extracts ingredients from a recipe and searches for nearby stores that stock these ingredients.
+o	Add a "Find Nearest Liquor Store" button on recipe pages.
+
+  Milestone 3: Improve User Experience on "Not Found" Pages
+•	Purpose: Enhance the user experience by offering options when a recipe, category, drink, or page cannot be found.
+•	Tasks:
+o	Create a user-friendly "Not Found" page with options to create a new recipe or go back to the home page.
+o	Include helpful links or suggestions for similar categories or recipes.
+o	Implement a fallback route in the Flask application for handling 404 errors.
+
+  Milestone 4: Refine the Search and Filter Functionality
+•	Purpose: Ensure the search and filter functionalities are working seamlessly, including the "Alcoholic" and "Non-Alcoholic" filters. Add more useful filters.
+•	Tasks:
+o	Debug and fix any existing issues with the search and filter functionalities.
+o	Ensure that filtered search results correctly display the drinks based on user input.
+o	Test the advanced search filter with different combinations of search criteria to ensure accuracy.
+
