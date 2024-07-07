@@ -1,0 +1,109 @@
+#larosas-projet
+
+Lauren Rosas
+7/1/24
+Revised Project Spec
+
+A. Description
+•	Purpose: Designed for enthusiasts who enjoy making coffee drinks, mocktails, cocktails, and other specialty drinks at home.
+•	Features:
+o	Detailed recipes with step-by-step instructions, ingredient lists, and brewing/mixing tips.
+o	Users can rate drinks and log the date they made them.
+o	Filter by ingredients and type of drink to find recipes.
+o	Measurement conversions to accommodate users from different regions.
+Revision: no longer including drink rating; might implement date log if the user creates their own drink recipes
+
+B. Task Vignettes
+Task 1: Exploring and Making a Drink
+•	Vignette: Emma explores the app, finds a Pumpkin Spice Latte recipe, follows the instructions, makes the drink, rates it, and logs the date.
+•	Details:
+o	User navigates to the app's homepage.
+o	User clicks on a recipe link.
+o	App retrieves and displays the recipe details.
+o	User follows the instructions and makes the drink.
+o	User rates the drink and logs the date.
+o	Rating and log are saved in the SQLite database.
+Revision: No longer rating the drink; Make sure the logging system is straightforward to implement using basic form submissions and database updates.
+
+Task 2: Finding Drinks Based on Ingredients
+•	Vignette: John uses the "Find by Ingredients" feature, enters available ingredients, finds matching recipes, selects a Mocha Frappuccino, and follows the recipe.
+•	Details:
+o	User selects the "Find by Ingredients" feature.
+o	User inputs available ingredients.
+o	App searches the database for recipes matching the ingredients.
+o	App displays a list of matching recipes.
+o	User selects a recipe and follows the instructions.
+Revision: Simplify ingredient matching to ensure it can be implemented within the remaining time.
+
+Task 3: Using Measurement Conversions
+•	Vignette: Lily finds a Margarita recipe, uses the measurement conversion feature to convert milliliters to ounces, and makes the drink.
+•	Details:
+o	User selects a recipe.
+o	User activates the measurement conversion feature.
+o	App converts measurements in the recipe from milliliters to ounces (or vice versa).
+o	User follows the converted recipe instructions.
+Revision: Implemented a basic dropdown for conversions to ensure it can be completed on time. Will need to make more accurate for all recipes.
+
+New Task: Creating and Saving a Recipe
+•	Vignette: Alex wants to create his own cocktail recipe. He opens the app, navigates to the "Create Recipe" page, fills in the details, and saves the recipe. The new recipe appears in his saved recipes.
+•	Details:
+o	User navigates to the "Create Recipe" page.
+o	User fills in the recipe details (name, ingredients, instructions).
+o	App saves the recipe to the database.
+o	User can view the new recipe in the saved recipes list.
+
+Task 4: Finding Nearest Store for Ingredients (Proposed)
+•	Vignette: Sarah wants to find a store that sells the ingredients for a recipe. She uses the "Find Store near me" feature to locate the nearest store.
+•	Details:
+o	User selects the "Find Store" feature.
+o	App uses location data to find nearby stores.
+o	App displays a list of stores with the needed ingredients.
+Revision: This task is marked as "Proposed" and will only be implemented if time permits.
+
+C. Technical Flow
+1. User Input
+•	User Registration: User creates an account to save data for rating drinks, saved recipes, and other user-specific data.
+•	Logged In Users:
+o	Can select a recipe from the homepage.
+o	Can rate drinks and log the date made.
+o	Can enter available ingredients to find matching recipes.
+o	Can request measurement conversions.
+o	Can create and save their own recipes.
+Revision: User does not need to log in. User information will save within session as long as they do not exit app. If user decides to create a recipe, will need to figure out how to save information in database.
+
+2. Data Sources
+•	Recipe Data:
+o	Fetched from a predefined dataset or API.
+o	The Cocktail DB.
+•	User Data:
+o	Ratings and logs retrieved and updated in the database.
+o	Custom recipes created by users.
+Revision: Ratings no longer needed.
+
+3. Background Processes
+•	Ingredient Matching and Recipe Search:
+o	Matches user-input ingredients with available recipes.
+•	Measurement Conversions:
+o	Converts measurements in real-time based on user preferences.
+
+4. Results Display
+•	Recipe Details:
+o	Displayed on the recipe page.
+•	User Data:
+o	Ratings and logs are stored and retrievable.
+•	Matching Recipes:
+o	Displayed based on user-input ingredients.
+•	Converted Measurements:
+o	Updated in real-time on the recipe page by switching toggle switches in settings.
+•	Custom Recipes:
+o	Created recipes are displayed in the user's saved recipes list.
+Revision: Conversion updated with simple drop down instead of toggle
+
+
+![image](https://github.com/laurenrosas93/CafeCopycat/assets/95515803/de408d99-b321-4757-bbcf-a2c168622be0)
+
+
+
+
+
+----------
