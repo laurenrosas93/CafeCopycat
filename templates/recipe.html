@@ -20,7 +20,7 @@
             background: #fff;
             padding: 20px;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
         }
         .recipe-details img {
             max-width: 200px;
@@ -34,42 +34,131 @@
             color: green;
             font-weight: bold;
         }
+
+        .row {  
+            width: auto;
+            height: auto;
+        }
+
+        .notes-section {
+            margin-top: 20px;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .col-md-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+            box-sizing: border-box;
+        }
+
+        .ingredient-item {
+            margin-bottom: auto;  
+        }
+        .star-rating {
+            direction: rtl;
+            display: inline-block;
+            padding: 0;
+        }
+        .star-rating input {
+            display: none;
+        }
+        .star-rating label {
+            color: #ccc;
+            font-size: 20px;
+            padding: 0;
+            cursor: pointer;
+            -webkit-transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
+        }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #f2b600;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-4">
         <h1>{{ details['strDrink'] }}</h1>
         <img src="{{ details['strDrinkThumb'] }}" alt="{{ details['strDrink'] }}" class="drink-thumbnail mb-4">
-        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
         <h3>Ingredients</h3>
-        <ul>
+        <div class="row">
             {% for i in range(1, 16) %}
                 {% if details['strIngredient' + i|string] %}
-                    <li>{{ details['strIngredient' + i|string] }}: {{ details['strMeasure' + i|string] }}</li>
+                    <div class="col-md-6 ingredient-item">
+                        <li>{{ details['strIngredient' + i|string] }}: {{ details['strMeasure' + i|string] }}</li>
+                    </div>
                 {% endif %}
             {% endfor %}
-        </ul>
+        </div>
 
         <h2>Instructions</h2>
         <p>{{ details['strInstructions'] }}</p>
 
         <form method="post">
             <div class="unit-dropdown">
-                <label for="unit">Select unit:</label>
+                <label for="unit">Convert the units:</label>
                 <select name="unit" id="unit" onchange="this.form.submit()">
                     <option value="imperial">Imperial</option>
                     <option value="metric" {% if request.form.get('unit') == 'metric' %}selected{% endif %}>Metric</option>
                 </select>
             </div>
+            
+            <h3>Rate This Recipe:</h3>
+            <div class="star-rating">
+                {% for i in range(5, 0, -1) %}
+                    <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" {% if user_rating == i %}checked{% endif %}>
+                    <label for="star{{ i }}" class="fas fa-star"></label>
+                {% endfor %}
+            </div>
+
+            <div class="notes-section">
+                <label for="notes">Notes:</label>
+                <textarea id="notes" name="notes" placeholder="Write some notes about your drink here. You can find them in your 'Saved Recipes'" rows="4" cols="50">{{ notes }}</textarea>
+            </div>
+
             {% if recipe_saved %}
                 <p class="saved-message">Yay! This recipe was saved to your Saved Recipes!</p>
             {% else %}
-                <button type="submit" name="save">Save Recipe</button>
+                <br><button type="submit" name="save">Save Recipe</button>
             {% endif %}
         </form>
     </div>
+    <br>
+    <br>
     <a href="{{ url_for('saved_recipes') }}">Go to Saved Recipes</a>
     <br>
     <a href="{{ url_for('home') }}">Back to Home</a>
+
+    <script>
+        const stars = document.querySelectorAll('.star-rating input');
+        stars.forEach(star => {
+            star.addEventListener('change', function() {
+                const rating = this.value;
+                const drinkId = "{{ details['idDrink'] }}";
+
+                fetch(`{{ url_for('rate_recipe') }}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ idDrink: drinkId, rating: rating }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Rating saved:', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
