@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import pandas as pd
 import requests
 import os
 from datetime import datetime
 import random
 from fractions import Fraction
+from urllib.parse import quote
 
 app = Flask(__name__)
 
@@ -41,13 +42,19 @@ def fetch_categories_with_drinks():
     return []
 
 def fetch_drinks_by_category(category):
-    response = requests.get(f'https://www.thecocktaildb.com/api/json/v1/1/filter.php?c={category}')
+    response = requests.get(f'https://www.thecocktaildb.com/api/json/v1/1/filter.php?c={quote(category)}')
     if response.status_code == 200 and response.json()['drinks']:
         return response.json()['drinks']
     return []
 
 def fetch_drinks_by_name(name):
     response = requests.get(f'https://www.thecocktaildb.com/api/json/v1/1/search.php?s={name}')
+    if response.status_code == 200 and response.json()['drinks']:
+        return response.json()['drinks']
+    return []
+
+def fetch_drinks_by_ingredient(ingredient):
+    response = requests.get(f'https://www.thecocktaildb.com/api/json/v1/1/filter.php?i={ingredient}')
     if response.status_code == 200 and response.json()['drinks']:
         return response.json()['drinks']
     return []
@@ -163,10 +170,12 @@ def home():
 
 @app.route('/category/<category_name>')
 def category(category_name):
+    category_name = category_name.replace("%20", " ").replace("%2F", "/")
     drinks = app.config["DRINKS_DF"][app.config["DRINKS_DF"]['strCategory'] == category_name]
     if drinks.empty:
         return render_template('not_found.html')
     return render_template('category.html', category=category_name, drinks=drinks.to_dict('records'))
+
 
 @app.route('/recipe/<drink_id>', methods=['GET', 'POST'])
 def recipe(drink_id):
@@ -176,10 +185,14 @@ def recipe(drink_id):
 
     is_saved = any(d['idDrink'] == drink_id for d in app.config["SAVED_RECIPES"])
     recipe_saved = False
+    notes = ""
+    rating = next((d['rating'] for d in app.config["SAVED_RECIPES"] if d['idDrink'] == drink_id), None)
 
     if request.method == 'POST':
-        if 'save' in request.form and not is_saved:
-            save_recipe(details)  # Save the recipe without the rating if the save button was clicked
+        if 'save' in request.form:
+            notes = request.form.get('notes')
+            rating= int(request.form.get('rating'))
+            save_recipe(details, notes, rating)  # Save the recipe with notes and rating
             recipe_saved = True
             return redirect(url_for('recipe', drink_id=drink_id, saved='true'))
 
@@ -197,38 +210,59 @@ def recipe(drink_id):
 
     recipe_saved = request.args.get('saved') == 'true'
 
-    return render_template('recipe.html', details=details, is_saved=is_saved, recipe_saved=recipe_saved)
+    return render_template('recipe.html', details=details, is_saved=is_saved, recipe_saved=recipe_saved, notes=notes, rating=rating)
+
+@app.route('/rate_recipe', methods=['POST'])
+def rate_recipe():
+    data = request.json
+    drink_id = data['idDrink']
+    rating = int(data)['rating']
+
+    for recipe in app.config["SAVED_RECIPES"]:
+        if recipe['idDrink'] == drink_id:
+            recipe['rating'] = rating
+            break
+    else:
+        for recipe in app.config["DRINKS_DF"].to_dict('records'):
+            if recipe['idDrink'] == drink_id:
+                recipe['rating'] = rating
+                app.config["SAVED_RECIPES"].append(recipe)
+                break
+
+    save_drinks(app.config["DRINKS_DF"])
+    return jsonify({"success": True})
 
 @app.route('/saved_recipes')
 def saved_recipes():
     if not app.config["SAVED_RECIPES"]:
-        return render_template('not_found.html')
+        return render_template('no_saved_recipes.html')
     return render_template('saved_recipes.html', saved_recipes=app.config["SAVED_RECIPES"])
 
 @app.route('/search', methods=['GET'])
 def search():
     query = request.args.get('query')
-    categories = request.args.getlist('categories')
-    ingredient = request.args.getlist('ingredient')
+    ingredient = request.args.get('ingredient')
     alcoholic = request.args.get('alcoholic')
-
+    
     drinks = []
 
     if query and len(query) == 1:
         drinks = fetch_drinks_by_letter(query)
     elif query:
         drinks = fetch_drinks_by_name(query)
+    elif ingredient:
+        drinks = fetch_drinks_by_ingredient(ingredient)
     elif alcoholic:
         drinks = fetch_drinks_by_alcoholic(alcoholic)
     else:
-        drinks = fetch_drinks_by_filter(categories)
-
-    if isinstance(drinks, pd.DataFrame) and drinks.empty:
+        drinks = app.config["DRINKS_DF"].to_dict('records')
+    
+    if not drinks:
         return render_template('not_found.html')
     
     return render_template('search_results.html', drinks=drinks)
 
-def save_recipe(details):  # removed rating
+def save_recipe(details, notes, rating=None):
     if not os.path.exists('saved_recipes'):
         os.makedirs('saved_recipes')
     filename = os.path.join('saved_recipes', f"{details['strDrink']}.txt")
@@ -242,8 +276,14 @@ def save_recipe(details):  # removed rating
             measure = details.get(f"strMeasure{i}")
             if ingredient:
                 f.write(f"{ingredient}: {measure}\n")
-    details['saved_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        f.write(f"Notes: {notes}\n")
+        if rating:
+            f.write(f"Rating: {rating}\n")
+    details['saved_date'] = datetime.now().strftime('%B %d, %Y at %I:%M %p')
+    details['notes'] = notes
+    details['rating'] = rating
     app.config["SAVED_RECIPES"].append(details)
+    save_drinks(app.config["DRINKS_DF"])
 
 # Error handler for 404 errors
 @app.errorhandler(404)

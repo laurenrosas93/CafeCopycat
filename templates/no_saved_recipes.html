@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>No Saved Recipes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .container {
+            margin-top: 50px;
+            justify-content: center;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+        .message {
+            font-size: 24px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .search-bar {
+            margin-top: 20px;
+        }
+        .search-bar input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .search-bar button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            justify-content: center;
+            align-items: center;
+
+        }
+        .search-bar button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<br>
+<body>
+    <div class="container">
+        <div class="message">You don't have any recipes saved yet. Use the search bar below to find drinks to save!</div>
+        <div class="search-bar">
+            <form action="{{ url_for('search') }}" method="get">
+                <input type="text" name="query" placeholder="Search for drinks">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+        <a href="{{ url_for('home') }}">Back to Home</a></body>
+</html>
+</html>
