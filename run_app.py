@@ -31,6 +31,7 @@ def create_drinks_table():
 
 app.config["DRINKS_DF"] = create_drinks_table()
 app.config["SAVED_RECIPES"] = []
+app.config["CREATED_RECIPES"] = []
 
 def save_drinks(df):
     df.to_csv('data/default.csv', index=False)
@@ -43,6 +44,7 @@ def fetch_categories_with_drinks():
             categories = [{'name': item['strCategory'], 'has_drinks': bool(fetch_drinks_by_category(item['strCategory']))}
                           for item in json_response['drinks']
                           if '/' not in item['strCategory']]
+            categories.append({'name': 'Created Recipes', 'has_drinks': bool(app.config["CREATED_RECIPES"])})
             print(f"Categories fetched: {categories}")  # Debugging line
             return categories
         print(f"Failed to fetch categories. Status code: {response.status_code}. Response: {response.text}")
@@ -53,6 +55,8 @@ def fetch_categories_with_drinks():
     return []
 
 def fetch_drinks_by_category(category):
+    if category == 'Created Recipes':
+        return app.config["CREATED_RECIPES"]
     try:
         response = requests.get(f'https://www.thecocktaildb.com/api/json/v1/1/filter.php?c={quote(category)}')
         if response.status_code == 200:
@@ -68,18 +72,9 @@ def fetch_drinks_by_category(category):
     return []
 
 def fetch_drinks_by_name(name):
-    try:
-        response = requests.get(f'https://www.thecocktaildb.com/api/json/v1/1/search.php?s={name}')
-        if response.status_code == 200:
-            json_response = response.json()
-            if 'drinks' in json_response:
-                return json_response['drinks']
-        print(f"Failed to fetch drinks by name {name}. Status code: {response.status_code}. Response: {response.text}")
-    except requests.exceptions.RequestException as e:
-        print(f"Request exception for name {name}. Error: {e}")
-    except requests.exceptions.JSONDecodeError as e:
-        print(f"JSON decode error for name {name}. Error: {e}. Response: {response.text}")
-    return []
+    drinks = app.config["DRINKS_DF"][app.config["DRINKS_DF"]['strDrink'].str.contains(name, case=False, na=False)].to_dict('records')
+    created_drinks = [d for d in app.config["CREATED_RECIPES"] if name.lower() in d['strDrink'].lower()]
+    return drinks + created_drinks
 
 def fetch_drinks_by_ingredient(ingredient):
     try:
@@ -100,6 +95,11 @@ def fetch_drink_details(drink_id):
     saved_recipe = next((d for d in app.config["SAVED_RECIPES"] if d['idDrink'] == drink_id), None)
     if saved_recipe:
         return saved_recipe
+
+    # Check if the drink_id is for a custom created recipe
+    created_recipe = next((d for d in app.config["CREATED_RECIPES"] if d['idDrink'] == drink_id), None)
+    if created_recipe:
+        return created_recipe
 
     # Otherwise, fetch from the API
     try:
@@ -257,8 +257,8 @@ def recipe(drink_id):
 
     is_saved = any(d['idDrink'] == drink_id for d in app.config["SAVED_RECIPES"])
     recipe_saved = False
-    notes = ""
-    rating = next((d['rating'] for d in app.config["SAVED_RECIPES"] if d['idDrink'] == drink_id), None)
+    notes = details.get('notes', "")
+    rating = details.get('rating', None)
 
     if request.method == 'POST':
         if 'save' in request.form:
@@ -310,6 +310,12 @@ def saved_recipes():
         return render_template('no_saved_recipes.html')
     return render_template('saved_recipes.html', saved_recipes=app.config["SAVED_RECIPES"])
 
+@app.route('/created_recipes')
+def created_recipes():
+    if not app.config["CREATED_RECIPES"]:
+        return render_template('no_saved_recipes.html')
+    return render_template('created_recipes.html', saved_recipes=app.config["CREATED_RECIPES"])
+
 @app.route('/search', methods=['GET'])
 def search():
     query = request.args.get('query')
@@ -341,8 +347,6 @@ def create_recipe():
         drink_name = request.form.get('drink_name')
         category = request.form.get('category')
         alcoholic = request.form.get('alcoholic')
-        ingredients = [request.form.get(f'ingredient{i}') for i in range(1, 16)]
-        measures = [request.form.get(f'measure{i}') for i in range(1, 16)]
         instructions = request.form.get('instructions')
 
         # Handle file upload
@@ -351,25 +355,34 @@ def create_recipe():
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
-            strDrinkThumb = url_for('static', filename=f'uploads/{filename}')
+            strDrinkThumb = url_for('static', filename=f'uploads/{filename}', _external=True)
         else:
             strDrinkThumb = ''
 
         new_recipe = {
             'idDrink': str(random.randint(100000, 999999)),  # Generate a random ID
             'strDrink': drink_name,
-            'strCategory': category,
+            'strCategory': 'Created Recipes',
             'strAlcoholic': alcoholic,
             'strInstructions': instructions,
-            'strDrinkThumb': strDrinkThumb
+            'strDrinkThumb': strDrinkThumb,
+            'notes': "",
+            'rating': None
         }
 
         for i in range(1, 16):
-            new_recipe[f'strIngredient{i}'] = ingredients[i-1]
-            new_recipe[f'strMeasure{i}'] = measures[i-1]
+            ingredient = request.form.get(f'ingredient{i}')
+            measure = request.form.get(f'measure{i}')
+            unit = request.form.get(f'unit{i}')
+            if ingredient and measure:
+                new_recipe[f'strIngredient{i}'] = ingredient
+                new_recipe[f'strMeasure{i}'] = f"{measure} {unit}"
+            else:
+                new_recipe[f'strIngredient{i}'] = None
+                new_recipe[f'strMeasure{i}'] = None
 
-        app.config["SAVED_RECIPES"].append(new_recipe)
-        return redirect(url_for('saved_recipes'))
+        app.config["CREATED_RECIPES"].append(new_recipe)
+        return redirect(url_for('created_recipes'))
 
     return render_template('create_recipe.html', categories=[c['name'] for c in categories if c['has_drinks']])
 
@@ -377,7 +390,10 @@ def save_recipe(details, notes, rating=None):
     details['saved_date'] = datetime.now().strftime('%B %d, %Y at %I:%M %p')
     details['notes'] = notes
     details['rating'] = rating
-    app.config["SAVED_RECIPES"].append(details)
+    if details['strCategory'] == 'Created Recipes':
+        app.config["CREATED_RECIPES"].append(details)
+    else:
+        app.config["SAVED_RECIPES"].append(details)
 
 # Error handler for 404 errors
 @app.errorhandler(404)
