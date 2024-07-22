@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingredient List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .ingredient-entry {
+            margin-bottom: 10px;
+        }
+
+        input {
+            margin-right: 10px;
+        }
+
+        button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="ingredient-list">
+        <div class="ingredient-entry">
+            <input type="text" name="ingredient" placeholder="Ingredient">
+            <input type="number" name="measure" placeholder="Measure">
+        </div>
+    </div>
+    <button id="more-button">More</button>
+    <button id="submit-button">Submit</button>
+
+    <script>
+        document.getElementById('more-button').addEventListener('click', function() {
+            const ingredientList = document.getElementById('ingredient-list');
+            const newEntry = document.createElement('div');
+            newEntry.className = 'ingredient-entry';
+            newEntry.innerHTML = `
+                <input type="text" name="ingredient" placeholder="Ingredient">
+                <input type="number" name="measure" placeholder="Measure">
+            `;
+            ingredientList.appendChild(newEntry);
+        });
+
+        document.getElementById('submit-button').addEventListener('click', function() {
+            const entries = document.querySelectorAll('.ingredient-entry');
+            const data = Array.from(entries).map(entry => {
+                return {
+                    ingredient: entry.querySelector('input[name="ingredient"]').value,
+                    measure: entry.querySelector('input[name="measure"]').value
+                };
+            });
+            console.log(data);
+        });
+    </script>
+</body>
+</html>
