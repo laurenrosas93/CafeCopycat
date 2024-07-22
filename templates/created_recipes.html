@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Created Recipes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        .container {
+            margin-top: 20px;
+        }
+        .star-rating {
+            direction: rtl;
+            display: inline-block;
+            padding: 0;
+        }
+        .star-rating input {
+            display: none;
+        }
+        .star-rating label {
+            color: #ccc;
+            font-size: 20px;
+            padding: 0;
+            cursor: pointer;
+            -webkit-transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
+        }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #f2b600;
+        }
+        .createddrink-thumbnail {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Created Recipes</h1>
+        <div class="created-recipes">
+            {% for recipe in saved_recipes %}
+                <div class="recipe">
+                    <h2><a href="{{ url_for('recipe', drink_id=recipe['idDrink']) }}">{{ recipe['strDrink'] }}</a></h2>
+                    <img src="{{ recipe['strDrinkThumb'] }}" alt="{{ recipe['strDrink'] }}" class="createddrink-thumbnail">
+                    <div class="star-rating">
+                        {% for i in range(5, 0, -1) %}
+                            <input type="radio" id="star{{ i }}-{{ recipe['idDrink'] }}" name="rating-{{ recipe['idDrink'] }}" value="{{ i }}" {% if recipe['rating'] == i %}checked{% endif %} disabled>
+                            <label for="star{{ i }}-{{ recipe['idDrink'] }}" class="fas fa-star"></label>
+                        {% endfor %}
+                    </div>
+                    <p><strong>Notes:</strong> {{ recipe['notes'] }}</p>
+                    <p><strong>Saved Date:</strong> {{ recipe['saved_date'] }}</p>
+                </div>
+            {% endfor %}
+        </div>
+        <a href="{{ url_for('home') }}">Back to Home</a>
+    </div>
+</body>
+</html>
