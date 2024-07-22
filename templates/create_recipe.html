@@ -2,71 +2,95 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Your Own Recipe</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        .container {
-            text-align: center;
-            margin: auto;
-            padding: 20px;
-            max-width: 800px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
-        .button {
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 10px 24px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 8px;
+
+        .ingredient-entry {
+            margin-bottom: 10px;
+        }
+
+        input, select {
+            margin-right: 10px;
+        }
+
+        button {
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
+    <h1>Create Your Own Recipe</h1>
+    <form id="recipe-form" method="post" enctype="multipart/form-data">
+        <label for="drink_name">Drink Name:</label>
+        <input type="text" id="drink_name" name="drink_name" required><br><br>
 
-    <div class="container">
-        <h1>Create Your Own Recipe</h1>
-        <form action="{{ url_for('create_recipe') }}" method="post" enctype="multipart/form-data">
-            <label for="drink_name">Drink Name:</label>
-            <input type="text" id="drink_name" name="drink_name" required><br><br>
-            
-            <label for="category">Category:</label>
-            <select id="category" name="category" required>
-                {% for category in categories %}
-                    <option value="{{ category }}">{{ category }}</option>
-                {% endfor %}
-            </select><br><br>
-            
-            <label for="alcoholic">Alcoholic:</label>
-            <select id="alcoholic" name="alcoholic" required>
-                <option value="Alcoholic">Alcoholic</option>
-                <option value="Non_Alcoholic">Non-Alcoholic</option>
-            </select><br><br>
-            
-            <label for="instructions">Instructions:</label><br>
-            <textarea id="instructions" name="instructions" rows="4" cols="50" required></textarea><br><br>
-            
-            <label for="drink_image">Upload Drink Image:</label>
-            <input type="file" id="drink_image" name="drink_image" accept="image/*"><br><br>
-
-            <h3>Ingredients and Measures</h3>
-            {% for i in range(1, 16) %}
-                <label for="ingredient{{ i }}">Ingredient {{ i }}:</label>
-                <input type="text" id="ingredient{{ i }}" name="ingredient{{ i }}"><br>
-                <label for="measure{{ i }}">Measure {{ i }}:</label>
-                <input type="text" id="measure{{ i }}" name="measure{{ i }}"><br><br>
+        <label for="category">Category:</label>
+        <select id="category" name="category">
+            {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
             {% endfor %}
-            
-            <button type="submit" class="button">Create Recipe</button>
-        </form>
-        <a href="{{ url_for('home') }}">Back to Home</a>
-    </div>
+        </select><br><br>
 
+        <label for="alcoholic">Alcoholic:</label>
+        <select id="alcoholic" name="alcoholic">
+            <option value="Alcoholic">Alcoholic</option>
+            <option value="Non_Alcoholic">Non Alcoholic</option>
+        </select><br><br>
+
+        <label for="instructions">Instructions:</label><br>
+        <textarea id="instructions" name="instructions" rows="4" cols="50" required></textarea><br><br>
+
+        <label for="drink_image">Upload Image:</label>
+        <input type="file" id="drink_image" name="drink_image"><br><br>
+
+        <div id="ingredient-list" class="ingredient-list">
+            <div class="ingredient-entry">
+                <input type="text" name="ingredient1" placeholder="Ingredient" required>
+                <input type="number" name="measure1" placeholder="Measure" required>
+                <select name="unit1">
+                    <option value="oz">oz</option>
+                    <option value="ml">ml</option>
+                    <option value="cl">cl</option>
+                    <option value="l">l</option>
+                    <option value="cup">cup</option>
+                    <option value="tbsp">tbsp</option>
+                    <option value="tsp">tsp</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="button" id="more-button">More</button>
+        <button type="submit" id="submit-button">Submit</button>
+    </form>
+
+    <script>
+        document.getElementById('more-button').addEventListener('click', function() {
+            const ingredientList = document.getElementById('ingredient-list');
+            const newEntry = document.createElement('div');
+            newEntry.className = 'ingredient-entry';
+            const entryCount = ingredientList.children.length + 1;
+            newEntry.innerHTML = `
+                <input type="text" name="ingredient${entryCount}" placeholder="Ingredient" required>
+                <input type="number" name="measure${entryCount}" placeholder="Measure" required>
+                <select name="unit${entryCount}">
+                    <option value="oz">oz</option>
+                    <option value="ml">ml</option>
+                    <option value="cl">cl</option>
+                    <option value="l">l</option>
+                    <option value="cup">cup</option>
+                    <option value="tbsp">tbsp</option>
+                    <option value="tsp">tsp</option>
+                </select>
+            `;
+            ingredientList.appendChild(newEntry);
+        });
+    </script>
+
+    <p><a href="{{ url_for('home') }}">Back to Home</a></p>
 </body>
 </html>
