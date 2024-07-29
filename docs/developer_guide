@@ -1,0 +1,148 @@
+CafeCopyCat: Developer’s Guide
+Created by Lauren Rosas
+
+Description
+
+This application allows users to browse, search, create, and save drink recipes. Users can view drink categories, search for drinks by name or ingredient, and create their own recipes, including uploading images. The application uses Flask for the backend, serving HTML templates to the frontend, and interacts with an external API to fetch drink data.
+
+Implemented Features
+1.	Home Page: Displays drink categories and a random drink of the day.
+2.	Category Page: Lists drinks in the selected category.
+3.	Recipe Page: Shows detailed information about a selected drink.
+4.	Create Recipe Page: Allows users to create new drink recipes, including uploading images.
+5.	Created Recipes Page: Displays user-created recipes with thumbnails.
+6.	Saved Recipes Page: Shows recipes saved by the user.
+7.	Search Functionality: Enables searching for drinks by name or ingredient.
+8.	Measurement Conversion: Converts ingredient measurements between metric and imperial units.
+
+Prerequisite: Python 3.x
+
+Directory Setup
+1.	main.py: Entry point of the application.
+2.	static/: Directory to store static files 
+•	style.css
+•	images/ ~for existing background images needed between pages
+o	background.jpg
+•	uploads/  ~*IMPORTANT for user uploaded images.
+•	Images/
+3.	templates/: Directory to store HTML templates
+•	home.html
+•	category.html
+•	recipe.html
+•	create_recipe.html
+•	created_recipes.html
+•	saved_recipes.html
+•	search_results.html
+•	not_found.html
+4.	data/: Directory to store data files
+•	default.csv
+o	
+5.	doc/: 
+•	developer_guide.md
+•	user_guide.md
+6.	README.md
+
+Condensed Version of Final Planning Specs
+•	Implemented Features:
+o	Fetch drink categories and details from an external API.
+o	Search drinks by name, ingredient, and alcoholic content.
+o	Create and save custom drink recipes.
+o	Display drink details, including ingredients and instructions.
+o	Convert measurement units between metric and imperial.
+o	Rate and add notes to recipes.
+o	View saved and created recipes.
+o	Advanced filtering options.
+
+•	Not Implemented:
+o	User authentication and personalized profiles.
+o	Integration with additional APIs for enhanced functionality.
+
+Installation, Deployment, and Admin Issues
+1.	Installation:
+o	Ensure you have Python 3.6+ installed.
+o	Clone the repository and navigate to the project directory.
+2.	Running the App:
+o	Start the Flask application: python  main.py
+o	The app should be running on http://127.0.0.1:5001.
+
+3.	Admin Tasks:
+o	 Ensure the data and static/uploads directories exist and are writable. This is important for when users create their recipes and upload an image of their drinks.
+o	Most drink data will be pulled from API* : https://www.thecocktaildb.com/
+	*Update the default.csv file in the data directory with initial drink data, if needed. 
+User Interaction and Flow:
+
+1.	Home Page (home.html):
+o	Displays drink categories and a random drink of the day.
+o	Users can click on a category to view drinks or search for drinks.
+2.	Category Page (category.html):
+o	Displays drinks in the selected category.
+o	Users can click on a drink to view its details.
+3.	Recipe Page (recipe.html):
+o	Shows detailed information about a drink, including ingredients and instructions.
+o	Users can rate the recipe, add notes, and save the recipe.
+4.	 Saved Recipes Page (saved_recipes.html):
+o	Displays all recipes saved by the user.
+o	Users can view details of saved recipes.
+5.	Created Recipes Page (created_recipes.html):
+o	Displays all recipes created by the user.
+o	Users can view details of created recipes.
+6.	Create Recipe Page (create_recipe.html):
+o	Allows users to create a new recipe by entering details and uploading an image.
+o	On submission, the recipe is saved to the created_recipes list and the user is redirected to the created_recipes page.
+
+Code Walkthrough
+main.py: This is the main entry point of the application.
+•	Imports: Import necessary modules and libraries.
+•	App Configuration: Set up the Flask app and configure the upload folder.
+•	Function Definitions:
+o	create_drinks_table(): Initializes the drinks DataFrame.
+o	save_drinks(df): Saves the drinks DataFrame to a CSV file.
+o	fetch_categories_with_drinks(): Fetches drink categories from the external API.
+o	fetch_drinks_by_category(category): Fetches drinks for a specific category.
+o	fetch_drinks_by_name(name): Fetches drinks by name.
+o	fetch_drinks_by_ingredient(ingredient): Fetches drinks by ingredient.
+o	fetch_drink_details(drink_id): Fetches detailed information about a specific drink.
+o	fetch_drinks_by_letter(letter): Fetches drinks starting with a specific letter.
+o	fetch_drinks_by_alcoholic(alcoholic): Fetches drinks by alcoholic content.
+o	get_random_drink(): Gets a random drink from the drinks DataFrame.
+o	convert_to_metric(measurement): Converts measurements to metric units.
+o	convert_to_imperial(measurement): Converts measurements to imperial units.
+o	initialize_drinks(): Initializes the drinks DataFrame by fetching all drinks from the external API.
+•	Routes:
+o	/: Home route.
+o	/category/<category_name>: Displays drinks in a specific category.
+o	/recipe/<drink_id>: Displays details of a specific recipe.
+o	/rate_recipe: Handles recipe rating.
+o	/saved_recipes: Displays saved recipes.
+o	/search: Handles drink search.
+o	/create_recipe: Handles recipe creation.
+o	/created_recipes: Displays user-created recipes.
+•	Error Handlers:
+o	@app.errorhandler(404): Custom 404 error handler.
+
+HTML Templates
+templates/create_recipe.html
+Allows users to create a new drink recipe.
+•	Form Fields: Drink name, category, alcoholic content, instructions, ingredients, measurements, and image upload.
+•	Dynamic Ingredient Entry: Users can add more ingredients by clicking the "More" button.
+templates/created_recipes.html
+Displays user-created recipes with thumbnails.
+•	Recipe Thumbnails: Shows the uploaded images for user-created recipes.
+•	Recipe Details: Users can click on a recipe to view its details, including the uploaded image.
+
+Known Issues
+
+Minor
+•	Some measurements might not convert correctly if inputted in an unexpected format.
+Major
+•	None are identified at this time.
+Future Work Possibilities
+1.	Expand Search Functionality
+2.	Improve search to handle more complex queries.
+3.	User Authentication
+4.	Add user accounts to save personal recipes.
+5.	Enhanced UI
+6.	Improve the user interface for a better experience.
+
+
+
