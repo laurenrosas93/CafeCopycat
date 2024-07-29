@@ -11,21 +11,22 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
-# Ensure the data directory exists
+## Ensure the data directory exists
 if not os.path.exists('data'):
     os.makedirs('data')
 
-# Ensure the upload directory exists
+## Ensure the upload directory exists
 if not os.path.exists(app.config.get('UPLOAD_FOLDER', 'static/uploads')):
     os.makedirs(app.config.get('UPLOAD_FOLDER', 'static/uploads'))
 
-# Load the list of drinks and their details from the CSV file
+## Load the list of drinks and their details from the CSV file
 def create_drinks_table():
     try:
         drinks_df = pd.read_csv('data/default.csv')
     except FileNotFoundError:
+        ## Create an empty DataFrame with the required columns if the file doesn't exist
         drinks_df = pd.DataFrame(columns=['idDrink', 'strDrink', 'strCategory', 'strDrinkThumb', 'strIngredient1', 'strAlcoholic'])
-        drinks_df.to_csv('data/default.csv', index=False)  # Save the empty DataFrame to avoid future errors
+        drinks_df.to_csv('data/default.csv', index=False)  ## Save the empty DataFrame to avoid future errors
     print('Drinks table created:\n', drinks_df.head())
     return drinks_df
 
@@ -34,9 +35,11 @@ app.config["SAVED_RECIPES"] = []
 app.config["CREATED_RECIPES"] = []
 
 def save_drinks(df):
+    ## Save the drinks DataFrame to a CSV file.
     df.to_csv('data/default.csv', index=False)
 
 def fetch_categories_with_drinks():
+    ## Fetch drink categories from the API and check if they have drinks.
     response = requests.get('https://www.thecocktaildb.com/api/json/v1/1/list.php?c=list')
     try:
         if response.status_code == 200:
@@ -45,7 +48,7 @@ def fetch_categories_with_drinks():
                           for item in json_response['drinks']
                           if '/' not in item['strCategory']]
             categories.append({'name': 'Created Recipes', 'has_drinks': bool(app.config["CREATED_RECIPES"])})
-            print(f"Categories fetched: {categories}")  # Debugging line
+            print(f"Categories fetched: {categories}")
             return categories
         print(f"Failed to fetch categories. Status code: {response.status_code}. Response: {response.text}")
     except requests.exceptions.RequestException as e:
@@ -55,6 +58,7 @@ def fetch_categories_with_drinks():
     return []
 
 def fetch_drinks_by_category(category):
+    ## Fetch drinks by category from the API or local storage.
     if category == 'Created Recipes':
         return app.config["CREATED_RECIPES"]
     try:
@@ -62,7 +66,7 @@ def fetch_drinks_by_category(category):
         if response.status_code == 200:
             json_response = response.json()
             if 'drinks' in json_response:
-                print(f"Drinks for category {category}: {json_response['drinks']}")  # Debugging line
+                print(f"Drinks for category {category}: {json_response['drinks']}")
                 return json_response['drinks']
         print(f"Failed to fetch drinks for category {category}. Status code: {response.status_code}. Response: {response.text}")
     except requests.exceptions.RequestException as e:
@@ -72,11 +76,13 @@ def fetch_drinks_by_category(category):
     return []
 
 def fetch_drinks_by_name(name):
+    ## Fetch drinks by name from the local storage and API.
     drinks = app.config["DRINKS_DF"][app.config["DRINKS_DF"]['strDrink'].str.contains(name, case=False, na=False)].to_dict('records')
     created_drinks = [d for d in app.config["CREATED_RECIPES"] if name.lower() in d['strDrink'].lower()]
     return drinks + created_drinks
 
 def fetch_drinks_by_ingredient(ingredient):
+    ## Fetch drinks by ingredient from the API.
     try:
         response = requests.get(f'https://www.thecocktaildb.com/api/json/v1/1/filter.php?i={ingredient}')
         if response.status_code == 200:
@@ -91,17 +97,18 @@ def fetch_drinks_by_ingredient(ingredient):
     return []
 
 def fetch_drink_details(drink_id):
-    # Check if the drink_id is for a custom saved recipe
+    ## Fetch drink details by ID from local storage or the API.
+    ## Check if the drink_id is for a custom saved recipe
     saved_recipe = next((d for d in app.config["SAVED_RECIPES"] if d['idDrink'] == drink_id), None)
     if saved_recipe:
         return saved_recipe
 
-    # Check if the drink_id is for a custom created recipe
+    ## Check if the drink_id is for a custom created recipe
     created_recipe = next((d for d in app.config["CREATED_RECIPES"] if d['idDrink'] == drink_id), None)
     if created_recipe:
         return created_recipe
 
-    # Otherwise, fetch from the API
+    ## Otherwise, fetch from the API
     try:
         response = requests.get(f'https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i={drink_id}')
         if response.status_code == 200:
@@ -116,12 +123,14 @@ def fetch_drink_details(drink_id):
     return None
 
 def fetch_drinks_by_filter(categories=None):
+    ## Fetch drinks by categories from the local storage.
     drinks = app.config["DRINKS_DF"]
     if categories:
         drinks = drinks[drinks['strCategory'].isin(categories)]
     return drinks
 
 def fetch_drinks_by_letter(letter):
+    ## Fetch drinks by the first letter from the API.
     try:
         response = requests.get(f'https://www.thecocktaildb.com/api/json/v1/1/search.php?f={letter}')
         if response.status_code == 200:
@@ -139,6 +148,7 @@ def fetch_drinks_by_letter(letter):
     return []
 
 def fetch_drinks_by_alcoholic(alcoholic):
+    ## Fetch drinks by alcoholic content from the API.
     if alcoholic == "Alcoholic":
         url = 'https://www.thecocktaildb.com/api/json/v1/1/filter.php?a=Alcoholic'
     else:
@@ -160,12 +170,14 @@ def fetch_drinks_by_alcoholic(alcoholic):
     return []
 
 def get_random_drink():
+    ## Get a random drink from the local storage.
     drinks = app.config["DRINKS_DF"]
     if not drinks.empty:
         return drinks.sample(1).iloc[0].to_dict()
     return {}
 
 def convert_to_metric(measurement):
+    ## Convert measurement units to metric.
     conversions = {
         'oz': 29.5735,
         'lb': 453.592,
@@ -193,6 +205,7 @@ def convert_to_metric(measurement):
     return measurement
 
 def convert_to_imperial(measurement):
+    ## Convert measurement units to imperial.
     conversions = {
         'ml': 0.033814,
         'cl': 0.33814,
@@ -220,6 +233,7 @@ def convert_to_imperial(measurement):
     return measurement
 
 def initialize_drinks():
+    ## Initialize drinks by fetching them from the API if not already available.
     if app.config["DRINKS_DF"] is None or app.config["DRINKS_DF"].empty:
         drinks = []
         for letter in 'abcdefghijklmnopqrstuvwxyz':
@@ -231,18 +245,18 @@ def initialize_drinks():
 def home():
     initialize_drinks()
     categories = fetch_categories_with_drinks()
-    print(f"Categories: {categories}")  # Debugging line
+    print(f"Categories: {categories}")
     drink_of_the_day = get_random_drink()
     return render_template('home.html', categories=categories, drink_of_the_day=drink_of_the_day)
 
 @app.route('/category/<category_name>')
 def category(category_name):
-    # Convert underscores back to spaces
+    ## Convert underscores back to spaces
     category_name = category_name.replace('_', ' ')
-    print(f"Category name received: {category_name}")  # Debugging line
+    print(f"Category name received: {category_name}")
     
     drinks = fetch_drinks_by_category(category_name)
-    print(f"Drinks fetched: {drinks}")  # Debugging line
+    print(f"Drinks fetched: {drinks}")
     
     if not drinks:
         return render_template('not_found.html')
@@ -351,7 +365,7 @@ def create_recipe():
         alcoholic = request.form.get('alcoholic')
         instructions = request.form.get('instructions')
 
-        # Handle file upload
+        ## Handle file upload
         file = request.files['drink_image']
         if file:
             filename = secure_filename(file.filename)
@@ -362,7 +376,7 @@ def create_recipe():
             strDrinkThumb = ''
 
         new_recipe = {
-            'idDrink': str(random.randint(100000, 999999)),  # Generate a random ID
+            'idDrink': str(random.randint(100000, 999999)),  ## Generate a random ID
             'strDrink': drink_name,
             'strCategory': 'Created Recipes',
             'strAlcoholic': alcoholic,
@@ -372,6 +386,7 @@ def create_recipe():
             'rating': None
         }
 
+        ## Collect ingredients and measures
         for i in range(1, 16):
             ingredient = request.form.get(f'ingredient{i}')
             measure = request.form.get(f'measure{i}')
@@ -389,6 +404,7 @@ def create_recipe():
     return render_template('create_recipe.html', categories=[c['name'] for c in categories if c['has_drinks']])
 
 def save_recipe(details, notes, rating=None):
+    ## Save a recipe to the appropriate category
     details['saved_date'] = datetime.now().strftime('%B %d, %Y at %I:%M %p')
     details['notes'] = notes
     details['rating'] = rating
@@ -397,7 +413,7 @@ def save_recipe(details, notes, rating=None):
     else:
         app.config["SAVED_RECIPES"].append(details)
 
-# Error handler for 404 errors
+## Error handler for 404 errors
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('not_found.html'), 404
