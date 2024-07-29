@@ -3,17 +3,21 @@
 This guide will help you install and run the CafeCopyCat application, allowing you to explore, create, and save drink recipes. Follow the steps below to get started.
 
 ## Table of Contents
-1. [Installation](#installation)
-2. [Using CafeCopyCat](#using-cafecopycat)
+1. [Prerequisites](#prerequisites)
+2. [Installation](#installation)
+3. [Using CafeCopyCat](#using-cafecopycat)
    - [Home Page](#home-page)
    - [Browsing Categories](#browsing-categories)
    - [Searching for Drinks](#searching-for-drinks)
    - [Viewing a Recipe](#viewing-a-recipe)
    - [Creating a Recipe](#creating-a-recipe)
    - [Saving and Rating Recipes](#saving-and-rating-recipes)
-3. [Common Issues and Fixes](#common-issues-and-fixes)
-4. [Known Limitations](#known-limitations)
-5. [Possible Future Work](#possible-future-work)
+4. [Common Issues and Fixes](#common-issues-and-fixes)
+5. [Known Limitations](#known-limitations)
+6. [Possible Future Work](#possible-future-work)
+
+## Prerequisites
+- Python 3.6 or higher
 
 ## Installation
 
@@ -35,10 +39,12 @@ This guide will help you install and run the CafeCopyCat application, allowing y
 **Visit the home page:**
 Open your web browser and navigate to `http://localhost:5001`. You will see the home page with various drink categories and the featured drink of the day.
 
-**Feature details:**
+**Page details:**
 - **Categories:** Displays drink categories.
 - **Drink of the Day:** Shows a random drink.
 - **Search:** Allows searching for drinks by name or ingredient.
+- **Created Drinks:** Will become available to click and view once you create and submit a recipe.
+- **Saved Recipes:** Will route to saved recipes page. If a recipe has been saved a thumbnail image will appear with the drink details. If no recipe has been saved yet, you will be routed to search for a drink.
 
 ### Browsing Categories
 **Browse Categories:**
