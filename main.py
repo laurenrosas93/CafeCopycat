@@ -263,7 +263,9 @@ def recipe(drink_id):
     if request.method == 'POST':
         if 'save' in request.form:
             notes = request.form.get('notes')
-            rating = int(request.form.get('rating'))
+            rating = request.form.get('rating')
+            if rating:
+                rating = int(rating)
             save_recipe(details, notes, rating)
             recipe_saved = True
             return redirect(url_for('recipe', drink_id=drink_id, saved='true'))
